@@ -6,13 +6,14 @@ import confused from "../../../assets/confused.png"
 import happy from "../../../assets/happy.png";
 import disappointed from "../../../assets/disappointed.png"
 import timer from '../../../assets/clock.png';
+import { Context } from '../../../hooks/Context';
 
 import { format } from 'date-fns'; 
-const Mood = () => {
-
+const Mood = ({navigation}) => {
+  const {dataDisplayMatrix,updateDataItem,userData} = useContext(Context);
   const ListWaterBottle = [
     { image: crying, name: "1"},
-      { image: disappointed, name: "2"},
+    { image: disappointed, name: "2"},
     { image: confused, name: "3"},
     { image: smile, name: "4"},
     { image: happy, name: "5" }
@@ -20,13 +21,64 @@ const Mood = () => {
   const [selectedItem, setSelectedItem] = useState("1");
   const [currentDate, setCurrentDate] = useState(new Date());
   const formattedDate = format(currentDate, 'EEEE,dd MMM');  
-  const timee = format(currentDate, 'pppp')
+  const timee = format(currentDate, 'p')
 
-  const handleSubmitt = () => {
-    const it = ListWaterBottle.filter((item) => item.name === selectedItem);
-    console.log(it);
+  const changeVlueMood = (responseJson) => {
+    const itemIndex = dataDisplayMatrix.find((childItem) => childItem.title === "Mood");
+   
+    if (itemIndex) {
+     // Modification logic
+    itemIndex.value = responseJson.name;
+    itemIndex.isChecked = true;
+    // setDataDisplayMatrix(itemIndex, dataDisplayMatrix[itemIndex].isChecked=true);
+     itemIndex.date = responseJson.date;
+     itemIndex.time = responseJson.time;
+     // Update the context
+    updateDataItem(itemIndex, itemIndex.index); // Pass the modified object and its index
+  }
+    navigation.navigate("Home")
   }
 
+  const fetchMood = async () => {
+     fetch(`http://192.168.43.54:5000/getMood?userId=${userData.iduser}`)
+      .then(response => response.json())
+      .then(responseJson => {
+        if (responseJson) {
+          // console.log(responseJson);
+          changeVlueMood(responseJson);
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      });
+    };
+
+  const sendData = async (newMood) => {
+      try {
+        const response = await fetch(`http://192.168.43.54:5000/addMood?userId=${userData.iduser}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',  // Specify JSON data format
+          },
+          body: JSON.stringify(newMood),  // Convert data to JSON string
+        });
+        const data = await response.json();  // Parse server response if needed
+      // console.log('Data sent successfully:', data); // Handle successful response
+        fetchMood();
+      } catch (error) {
+        console.error('Error sending data:', error);  // Handle errors gracefully
+      }
+    };  
+  
+   const handleSubmitt = () => {
+    const newMood = {
+      name: selectedItem,
+      date : formattedDate,
+      time : timee,
+    }
+    sendData(newMood); 
+    }
+  
 
   return (
      <SafeAreaView style={{flex:1,padding:10,backgroundColor:"white"}} >
@@ -86,7 +138,6 @@ const Mood = () => {
         </View>
         <TouchableOpacity onPress={() => {
           handleSubmitt();
-          navigation.navigate("Home")
         }}  style={{backgroundColor:"#a75377" ,width:120,height:40,borderRadius:5,alignItems:"center",justifyContent:"center",alignSelf:"center",marginTop: 30}}>
           <Text style={{color: '#fff',fontSize:14,fontWeight:"600"}}>ADD</Text>
         </TouchableOpacity>

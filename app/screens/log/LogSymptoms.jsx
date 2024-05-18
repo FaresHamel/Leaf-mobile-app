@@ -11,27 +11,77 @@ import calender from '../../assets/calender.png';
 import timer from '../../assets/clock.png';
 import { format } from 'date-fns'; 
 import { Context } from '../../hooks/Context';
+
 const LogSymptoms = ({navigation, route}) => {
+  
   const [currentDate, setCurrentDate] = useState(new Date());
   const Lis = route.params.list;  
-  const {dataSamptoms,setDataSamptoms} = useContext(Context); 
+  const {dataSamptoms,setDataSamptoms,userData} = useContext(Context); 
   const formattedDate = format(currentDate, 'dd MMM'); // Format the date  
   const time = format(currentDate, 'p')
-
   
-  const handleChildListChange = () => {
-    const updatedParentList = dataSamptoms.map((parentItem) => {
-      const matchingChild = Lis.find((childItem) => childItem.id === parentItem.id);
-      if (matchingChild) {
-          matchingChild.date = formattedDate;
-          matchingChild.time = time;
-          // Shallow comparison: Update properties if objects have the same ID
-          return { ...parentItem, ...matchingChild }; // Merge properties
+  const handleChildListChange = (arr) => {
+  const updatedParentList = dataSamptoms.map((parentItem) => {
+    const matchingChild = arr.find((childItem) => childItem.refe === parentItem.refe);
+    if (matchingChild) {
+         matchingChild.isChecked = true;
+         return { ...parentItem, ...matchingChild}; // Merge properties
       }
       return parentItem; // Keep the original parent item if no match
-    });
+  });
     setDataSamptoms(updatedParentList);
   };
+
+  const fetchData = async () => {
+    fetch(`http://192.168.43.54:5000/symptoms?userId=${userData.iduser}`)
+      .then(response => response.json())
+      .then(responseJson => {
+        if (responseJson.length > 0) {
+          let arr = responseJson;
+          handleChildListChange(arr);
+          navigation.navigate("Home")
+        } else {
+          setClickStart(false)
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      });
+    };
+ 
+  const sendData = async () => {
+    for (const item of Lis) {
+       item.date = formattedDate;
+       item.time = time;
+     }
+  try {
+    const response = await fetch(`http://192.168.43.54:5000/addSymptoms?userId=${userData.iduser}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',  // Specify JSON data format
+      },
+      body: JSON.stringify(Lis),  // Convert data to JSON string
+    });
+    await fetchData()
+  } catch (error) {
+    console.error('Error sending data:', error);  // Handle errors gracefully
+  }
+};
+  
+  
+  // const handleChildListChange = () => {
+  //   // const updatedParentList = dataSamptoms.map((parentItem) => {
+  //   //   const matchingChild = Lis.find((childItem) => childItem.id === parentItem.id);
+  //   //   if (matchingChild) {
+  //   //       matchingChild.date = formattedDate;
+  //   //       matchingChild.time = time;
+  //   //       // Shallow comparison: Update properties if objects have the same ID
+  //   //       return { ...parentItem, ...matchingChild }; // Merge properties
+  //   //   }
+  //   //   return parentItem; // Keep the original parent item if no match
+  //   // });
+  //   // setDataSamptoms(updatedParentList);
+  // };
   const renderItem = ({item}) => (
     <View
       style={{
@@ -125,8 +175,7 @@ const LogSymptoms = ({navigation, route}) => {
           alignItems: 'center',
         }}
         onPress={() => {
-          handleChildListChange()
-          navigation.navigate("Home")
+        sendData  ()        
         }}
         >
         <Text

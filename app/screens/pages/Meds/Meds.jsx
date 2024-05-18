@@ -1,4 +1,4 @@
-import React, {useState, useContext,useEffect,useRef} from 'react';
+import React, {useState, useContext,useEffect} from 'react';
 import {
   Text,
   View,
@@ -15,30 +15,74 @@ import back from '../../../assets//back.png';
 import { Context } from '../../../hooks/Context';
 import calender from "../../../assets/calender.png";
 import { format } from 'date-fns'; 
+
 const Meds = () => {
+  
   const [currentDate, setCurrentDate] = useState(new Date());
   const [modalVisible, setModalVisible] = useState(false);
   const [newMeds, setNewMeds] = useState('');
-  const {medsList,setMedsList} = useContext(Context); 
-  const formattedDate = format(currentDate, 'dd MMM'); // Format the date  
-  const timee = format(currentDate, 'pp')
+  const {medsList,setMedsList,userData} = useContext(Context); 
+  const formattedDate = format(currentDate, 'EEEE,dd MMM'); // Format the date  
+  const timee = format(currentDate, 'p')
+ 
+  // change input Text
   const handleTextChange = (text) => {
     setNewMeds(text);
   };
+
+  const fetchMedicaments = async () => {
+    fetch(`http://192.168.43.54:5000/getMeds?userId=${userData.iduser}`)
+      .then(response => response.json())
+      .then(responseJson => {
+        if (responseJson.length > 0) {
+          let arr = responseJson;
+          setMedsList(arr)
+        } else {
+          setClickStart(false)
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      });
+    };
+  //send data to the server
+  const sendData = async (newMedicaments) => {
+  try {
+    const response = await fetch(`http://192.168.43.54:5000/addMeds?userId=${userData.iduser}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',  // Specify JSON data format
+      },
+      body: JSON.stringify(newMedicaments),  // Convert data to JSON string
+    });
+     const data = await response.json();  // Parse server response if needed
+     console.log('Data sent successfully:', data); // Handle successful response
+     fetchMedicaments(); 
+  } catch (error) {
+    console.error('Error sending data:', error);  // Handle errors gracefully
+  }
+  };  
+  //prepeare th data to send to the server add time and date
   const handleNewMeds = () => {
     if (newMeds) {
       const newMedicaments = {
-        name: newMeds,
+        title: newMeds,
         date: formattedDate,
         time:timee
       }
-      setMedsList([...medsList,newMedicaments])
+      sendData(newMedicaments);
       setModalVisible(false);
     }
     setNewMeds('');
   }
+  
+  useEffect(() => {
+    fetchMedicaments()
+  }, [])
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+      <ScrollView style={{flex: 1, backgroundColor: 'white'}} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
       <View>
         {medsList.length > 0 ? 
           medsList.map((item, index)  => (
@@ -52,7 +96,7 @@ const Meds = () => {
                 borderTopWidth: 1,
                 borderTopColor: '#d9dad7'
                }} >
-              <Text style={{color:"#000",marginBottom:7,fontWeight:"600",fontSize:16}}>{item.name}</Text>
+              <Text style={{color:"#000",marginBottom:7,fontWeight:"600",fontSize:16}}>{item.title}</Text>
               <View style={{flexDirection:"row" ,alignItems:"center"}} >
                 <Image source={calender} style={{width:15,height:15,marginRight:10,tintColor:"#000"}} />
                 <Text style={{color:"#000",marginRight:5}} >{item.date}</Text>
@@ -176,6 +220,7 @@ const Meds = () => {
           </View>
         </View>
       </Modal>
+      </ScrollView>
       <StatusBar backgroundColor="#18A6C5" barStyle="light-content" />
     </SafeAreaView>
   );

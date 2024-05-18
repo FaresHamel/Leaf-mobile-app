@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -19,15 +19,11 @@ import styles from './signup.style';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import auth from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-
+import { Context } from '../../hooks/Context';
 
 const validationSchema = Yup.object().shape({
-  firstname: Yup.string().required('please enter your name'),
-  phoneNumber: Yup.string()
-    .required('Please enter your phone number')
-    .min(10,'Please enter correct phone number')
-    .max(10,'Please enter correct phone number'),
-   email: Yup.string()
+  name: Yup.string().required('please enter your name'),
+  email: Yup.string()
     .email('please enter correct email')
     .required('please enter your email'),
   password: Yup.string()
@@ -43,17 +39,16 @@ const validationSchema = Yup.object().shape({
 });
 
 const SignUp = ({navigation}) => {
- 
+  const { setIsLogin,updateUserData} = useContext(Context);
   const [showAlert, setShowAlert] = useState(false);
   const [textAlert, setAlertText] =  useState('please wait...');
   const [showProgress, setShowProgress] = useState(false);
   const [showCancelButton, setshowCancelButton] = useState(false);
   const [style, setStyle] = useState({ width: 170, height: 120 });
-
   useEffect(() => {
     GoogleSignin.configure({
       webClientId: '443425767025-dfcjm96gmgk71lj6je4edpo0qo3ao59h.apps.googleusercontent.com',
-    });
+    }); 
    },[])
   
   async function onGoogleButtonPress() {
@@ -99,45 +94,45 @@ const SignUp = ({navigation}) => {
   const verification = async val => {
     try {
       const res = await axios.post(
-        'http://192.168.43.54:3000/verification',
+        'http://192.168.43.54:5000/verification',
         val,
       );
       const result = res.data.result;
       if (result === 1) {
         setShowProgress(false);
-        setAlertText('البريد الالكتروني او رقم الهاتف مستعمل من قبل .');
+        setAlertText('The email address exist.');
         setshowCancelButton(true);
         setStyle({ width: 220, height: 120 });
       } else {
         signUp(val);
       }
     } catch (error) {
-      // Alert.alert('Error sign in', 'please try again', [{text: 'OK'}]);
       setShowProgress(false);
-      setAlertText('حدث خطأ. حاول مرة اخرى');
+      setAlertText('Something wrong please try again');
       setshowCancelButton(true);
-      setStyle({ width: 200, height: 120 });
+      setStyle({ width: 220, height: 120 });
     }
   };
 
   const signUp = async val => {
     try {
-      const res = await axios.post('http://192.168.43.54:3000/signup', val);
-      if (res.data.id) {
+      const res = await axios.post('http://192.168.43.54:5000/signup', val);
+      if (res.data.iduser) {
         const store = storeData(res.data);
         if (store) {
+          updateUserData(res.data)
           setAlertText('please wait..');
           setShowAlert(false);
           setShowAlert(false);
           setshowCancelButton(false);
           setShowAlert(false);
           setShowProgress(false);
-          navigation.navigate('Home');
+          setIsLogin(true);
         } else return;
       }
     } catch (error) {
       setShowProgress(false);
-      setAlertText('olease try again');
+      setAlertText('please try again');
       setshowCancelButton(true);
       setStyle({ width: 200, height: 120 });
     }
@@ -149,11 +144,9 @@ const SignUp = ({navigation}) => {
       await AsyncStorage.setItem('userInfo', jsonValue);
       return true;
     } catch (e) {
-      // console.log(e);
       return false;
     }
   };
- 
  
   return (
    <SafeAreaView style={styles.container}>
@@ -172,9 +165,9 @@ const SignUp = ({navigation}) => {
         </View>
         <View style={styles.formContainer}>
           <Formik
-            initialValues={{ email: '', password: '' }}
+            initialValues={{ name:'',email: '', password: ''}}
             validationSchema={validationSchema}
-            onSubmit={values => {
+            onSubmit={(values) => {
               handleSubmition(values);
             }}>
             {({ handleChange, handleBlur, handleSubmit, values, errors }) => (
@@ -182,16 +175,16 @@ const SignUp = ({navigation}) => {
                 <View
                   style={styles.inputContainer}>
                   <TextInput
-                    nativID="lastname"
-                    onChangeText={handleChange('lastname')}
-                    onBlur={handleBlur('lastname')}
+                    nativID="name"
+                    onChangeText={handleChange('name')}
+                    onBlur={handleBlur('name')}
                     placeholder="Enter you username "
                     style={styles.textInputStyle}
                     writingDirection="ltr"
                   />
                 </View>
-                {errors.firstname ? (
-                  <Text style={styles.errorText}>{errors.firstname}</Text>
+                {errors.name ? (
+                  <Text style={styles.errorText}>{errors.name}</Text>
                 ) : null}
                 <View
                   style={styles.inputContainer}>
@@ -233,18 +226,14 @@ const SignUp = ({navigation}) => {
                   closeOnTouchOutside={true}
                   closeOnHardwareBackPress={false}
                   showCancelButton={showCancelButton}
-                  // showConfirmButton={true}
                   cancelText="ok"
-                  // confirmText="Yes, delete it"
-                  // confirmButtonColor="#DD6B55"
                   cancelButtonColor="#198E52"
                   onCancelPressed={() => {
                     setShowAlert(false);
                     setShowProgress(false);
                   }}
-                  // onConfirmPressed={() => {
-                  //   this.hideAlert();
-                  // }}
+                  messageStyle={{ width: "100%", textAlign: "center" }}
+                  cancelButtonStyle={{width:60,height:30,textAlign:"center"}}
                   progressColor="#198E52"
                   progresSize="30"
                   animatedValue={3}
@@ -252,13 +241,12 @@ const SignUp = ({navigation}) => {
                   closeOnHardwareBackPress={true}
                   contentContainerStyle={styles.alertDimmention}
                 />
-
                 <TouchableOpacity
                   style={styles.createAcountBotton} 
                   onPress={handleSubmit}>
                   <Text
                     style={styles.createAcountText}>
-                    create new account</Text>
+                    Create new account</Text>
                 </TouchableOpacity>
               </>
             )}

@@ -9,6 +9,7 @@ import {
   FlatList,
   ScrollView,
   Pressable,
+  LogBox,
 } from 'react-native';
 import styles from './home.style';
 import startImage from '../../assets/goStart.png';
@@ -22,7 +23,6 @@ import addImage from "../../assets/add02.png";
 import water from '../../assets/water.png';
 import { Context } from '../../hooks/Context';
 import Moodal from '../components/Modal/Moodal';
-
 const dataDisplay = [
   {
     source: symptoms,
@@ -77,10 +77,169 @@ const dataDisplay = [
 
 const Home = ({navigation}) => {
   
-  const [matrix,setlistmatrix] = useState(""); 
-  const {cklickStart,setClickStart,dataSamptoms,medsList} = useContext(Context);
+  const {userData,cklickStart,setClickStart,dataSamptoms,setMedsList,medsList,dataDisplayMatrix,updateDataItem,setDataSamptoms} = useContext(Context);
+  let List;
   const [modalVisible, setModalVisible] = useState(false);
   const symptomsChecked = dataSamptoms.filter((obj) => obj.isChecked).length;
+
+//function to change Matrix list display
+  const handleChildListChange = () => {
+  const updatedParentList = dataSamptoms.map((parentItem) => {
+    const matchingChild = List.find((childItem) => childItem.refe === parentItem.refe);
+      if (matchingChild) {
+         matchingChild.isChecked = true;
+         return { ...parentItem, ...matchingChild}; // Merge properties
+      }
+      return parentItem; // Keep the original parent item if no match
+  });
+    setDataSamptoms(updatedParentList);
+  };
+  const changeVlueUniration = (responseJson) => { 
+  const itemIndex = dataDisplayMatrix.find((childItem) => childItem.title === "Uniration");
+  if (itemIndex) {
+      // Modification logic
+      itemIndex.value = responseJson.title;
+      itemIndex.isChecked = true;
+      itemIndex.date = responseJson.date;
+      itemIndex.time = responseJson.time;
+      // Update the context
+      updateDataItem(itemIndex, itemIndex.index); // Pass the modified object and its index
+    }
+  }
+  const changeVlueMood = (responseJson) => {
+    const itemIndex = dataDisplayMatrix.find((childItem) => childItem.title === "Mood");
+   
+    if (itemIndex) {
+     // Modification logic
+    itemIndex.value = responseJson.name;
+    itemIndex.isChecked = true;
+    // setDataDisplayMatrix(itemIndex, dataDisplayMatrix[itemIndex].isChecked=true);
+     itemIndex.date = responseJson.date;
+     itemIndex.time = responseJson.time;
+     // Update the context
+    updateDataItem(itemIndex, itemIndex.index); // Pass the modified object and its index
+    }
+  }
+  const changeVlueWater = (responseJson) => {
+    const itemIndex = dataDisplayMatrix.find((childItem) => childItem.title === "Water");
+    if (itemIndex) {
+     // Modification logic
+    itemIndex.value = responseJson.title;
+    itemIndex.isChecked = true;
+    // setDataDisplayMatrix(itemIndex, dataDisplayMatrix[itemIndex].isChecked=true);
+     itemIndex.date = responseJson.date;
+     itemIndex.time = responseJson.time;
+     // Update the context
+    updateDataItem(itemIndex, itemIndex.index); // Pass the modified object and its index
+  }}
+  const changeVlueActivity = (responseJson) => {
+    const itemIndex = dataDisplayMatrix.find((childItem) => childItem.title === "Activity");
+    if (itemIndex) {
+     // Modification logic
+     itemIndex.value = responseJson.title;
+     itemIndex.isChecked = true;
+    // setDataDisplayMatrix(itemIndex, dataDisplayMatrix[itemIndex].isChecked=true);
+     itemIndex.date = responseJson.date;
+     itemIndex.time = responseJson.time;
+     // Update the context
+    updateDataItem(itemIndex, itemIndex.index); // Pass the modified object and its index
+   }
+  }
+  // useEffect to get all data of user in data base
+  useEffect(() => {
+  
+  // function of fetch last item added by the user
+   const fetchActivity = async () => {
+     fetch(`http://192.168.43.54:5000/getActivity?userId=${userData.iduser}`)
+      .then(response => response.json())
+      .then(responseJson => {
+        if (responseJson) {
+          // console.log(responseJson);
+          changeVlueActivity(responseJson);
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      });
+    };
+    const fetchWater = async () => {
+     fetch(`http://192.168.43.54:5000/getWater?userId=${userData.iduser}`)
+      .then(response => response.json())
+      .then(responseJson => {
+        if (responseJson) {
+         // console.log(responseJson);
+          changeVlueWater(responseJson);
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      });
+    };
+    const fetchMood = async () => {
+     fetch(`http://192.168.43.54:5000/getMood?userId=${userData.iduser}`)
+      .then(response => response.json())
+      .then(responseJson => {
+        if (responseJson) {
+          changeVlueMood(responseJson);
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      });
+    };
+    const fetchUniration = async () => {
+     fetch(`http://192.168.43.54:5000/getUniration?userId=${userData.iduser}`)
+      .then(response => response.json())
+      .then(responseJson => {
+        if (responseJson) {
+          changeVlueUniration(responseJson);
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      });
+    };
+    const fetchMedicaments = async () => {
+    fetch(`http://192.168.43.54:5000/getMeds?userId=${userData.iduser}`)
+      .then(response => response.json())
+      .then(responseJson => {
+        if (responseJson.length > 0) {
+          let arr = responseJson;
+          setMedsList(arr)
+        } else {
+          setClickStart(false)
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      });
+    };
+    const fetchSymptoms = async () => {
+    fetch(`http://192.168.43.54:5000/symptoms?userId=${userData.iduser}`)
+      .then(response => response.json())
+      .then(responseJson => {
+        if (responseJson.length > 0) {
+          setClickStart(true);
+          List = responseJson;
+          handleChildListChange();
+        } else {
+          setClickStart(false)
+        }
+      })
+      .catch(error => {
+        // setIsLoading(false);
+        // setError(true);
+        // setNoData(false);
+      });
+    };
+    fetchSymptoms();
+    fetchMedicaments();
+    fetchUniration();
+    fetchMood();
+    fetchWater();
+    fetchActivity();
+    LogBox.ignoreAllLogs()
+  },[])
 
   return (
     <SafeAreaView style={styles.container}>
@@ -222,7 +381,96 @@ const Home = ({navigation}) => {
             </View>
           </>
         )}
-      </View>
+        </View>
+        {cklickStart ? (
+          <>
+            <View style={{flexDirection:"row",paddingHorizontal:10,justifyContent:"space-between"}}>
+              <Text>Metrics</Text>
+              <TouchableOpacity>
+                <Text>See All</Text>
+              </TouchableOpacity>
+            </View>
+          <View style={{width:"100%",marginTop:10,alignItems:"center",justifyContent:"space-between",flexDirection:"row",flexWrap:"wrap"}} >
+               {dataDisplayMatrix.filter((item) => item.isChecked).map((item,inde) => (
+                <TouchableOpacity
+                  key={item.title+inde}
+                  onPress={() => navigation.navigate(item.link)}
+                  style={{
+                    flexDirection: 'row',
+                    borderRadius: 6,
+                    width: "45%",
+                    height: 100,
+                    backgroundColor: 'white',
+                    borderColor: '#d9dad7',
+                    borderWidth: 1,
+                    borderStyle: 'solid',
+                    margin: 5,
+                    justifyContent:"space-between"
+                  }}>
+                  <View
+                    style={{
+                      height: '100%',
+                      width:"70%",
+                      alignItems: 'flex-start',
+                      paddingLeft:5,
+                      justifyContent: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        color: '#403f3f',
+                        fontWeight: '600',
+                      }}>
+                      {item.title}
+                    </Text>
+                      <Text
+                      style={{
+                        fontSize: 12,
+                        color: item.backgroundColor,
+                        fontWeight: '500',
+                      }}>
+                      {item.value}
+                     </Text>
+                     <Text
+                      style={{
+                        fontSize: 12,
+                        color: '#403f3f',
+                        fontWeight: '400',
+                      }}>
+                      {item.date}
+                     </Text>
+                     <Text
+                      style={{
+                        fontSize: 10,
+                        color: '#403f3f',
+                         fontWeight: '400',
+                        marginTop:5
+                      }}>
+                      {item.time}
+                    </Text>
+                  </View>
+                    <View
+                    style={{
+                      backgroundColor: 'transparent',
+                      width: '30%',
+                      height: '100%',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <Image
+                      source={item.source}
+                      style={{
+                        tintColor: item.backgroundColor,
+                        width: 20,
+                        height: 20,
+                      }}
+                    />
+                  </View>
+                </TouchableOpacity>
+               ))}
+          </View>
+          </>
+        )  : <></>}
         {symptomsChecked ?
           <View style={{ width: "100%",marginBottom:20}}>
             <View style={{width:"100%",flexDirection:"row",justifyContent:"space-between",padding:10}} >
@@ -231,10 +479,10 @@ const Home = ({navigation}) => {
                 <Text style={{color:"#198E52"}} >See All</Text>
               </Pressable>
             </View>
-          <View style={{backgroundColor:"#fff", borderRadius:10,padding:20,borderColor:"#198E52",borderWidth:1}}>
+          <View  key={Math.random().toString()}  style={{backgroundColor:"#fff", borderRadius:10,padding:20,borderColor:"#198E52",borderWidth:1}}>
             {dataSamptoms.map((obj) => (
               obj.isChecked ?
-                <View style={{borderBottomColor:"#d9dad7",borderBottomWidth:1,marginBottom:10,paddingVertical:5,flexDirection:"row",justifyContent:"space-between"}} >
+                <View key={obj.date} style={{borderBottomColor:"#d9dad7",borderBottomWidth:1,marginBottom:10,paddingVertical:5,flexDirection:"row",justifyContent:"space-between"}} >
                   <Text>{obj.title}</Text>
                   <Text>{obj.date+"   "+obj.time}</Text>
                 </View>
@@ -258,10 +506,10 @@ const Home = ({navigation}) => {
               </Pressable>
             </View>
           <View style={{backgroundColor:"#fff", borderRadius:10,padding:20,borderColor:"#18A6C5",borderWidth:1}}>
-            {medsList.map((obj) => (
+            {medsList.map((obj,index) => (
              
-                <View style={{borderBottomColor:"#d9dad7",borderBottomWidth:1,marginBottom:10,paddingVertical:5,flexDirection:"row",justifyContent:"space-between"}} >
-                  <Text>{obj.name}</Text>
+                <View key={obj.title+index}  style={{borderBottomColor:"#d9dad7",borderBottomWidth:1,marginBottom:10,paddingVertical:5,flexDirection:"row",justifyContent:"space-between"}} >
+                  <Text>{obj.title}</Text>
                   <Text>{obj.date+"   "+obj.time}</Text>
                 </View>
              
@@ -273,8 +521,7 @@ const Home = ({navigation}) => {
              </Pressable>
           </View>
         </View>
-        </View> :null
-        }
+        </View> :null}
       </ScrollView>
       <Moodal  modalVisible={modalVisible} setModalVisible={setModalVisible} setClickStart = {setClickStart}/>
       <StatusBar

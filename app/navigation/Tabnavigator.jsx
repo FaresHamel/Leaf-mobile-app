@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useContext,useEffect, useState} from 'react';
 import {View, Text, Image} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Home from '../screens/home/Home';
@@ -9,9 +9,29 @@ import menu from '../assets/menuImage.png';
 import recodImage from '../assets/recordImage.png';
 import account from '../assets/account.png';
 import resource from '../assets/resource.png';
-
+import { Context } from '../hooks/Context';
+import { date } from 'yup';
 const Tab = createBottomTabNavigator();
 const Tabnavigator = () => {
+ 
+  // const [userdata, setuserdata] = useState({});
+  const { userData } = useContext(Context);
+ 
+  // const getData = async () => {
+  //   console.log("we try to get data");
+  //   try {
+  //     const dannn = await AsyncStorage.getItem('userInfo');
+  //     const userInfo = await JSON.parse(dannn);
+  //     console.log(userInfo)
+  //     setuserdata(userInfo);
+  //   } catch (e) {}
+  // };
+ 
+  // useEffect(() => {
+  //   getData();
+  // },[])
+
+  
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
@@ -51,7 +71,7 @@ const Tabnavigator = () => {
                   fontWeight: '400',
                   color: '#303a52',
                 }}>
-                Bakar
+               {userData.name}
               </Text>
             </View>
           </View>

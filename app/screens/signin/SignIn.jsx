@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useContext } from 'react';
 import {
   View,
   Text,
@@ -19,7 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import auth from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-
+import { Context } from '../../hooks/Context';
 
 const validationSchema = Yup.object().shape({
   password: Yup.string()
@@ -39,20 +39,26 @@ const validationSchema = Yup.object().shape({
 
 const SignIp = ({navigation}) => {
  
-
-  const API_URL = 'http://192.168.43.54:3000/signIn';
+  const API_URL = 'http://192.168.43.54:5000/signIn';
   const [showAlert, setShowAlert] = useState(false);
   const [textAlert, setAlertText] = useState('please wait...');
   const [showProgress, setShowProgress] = useState(false);
   const [showCancelButton, setshowCancelButton] = useState(false);
   const [err, setErr] = useState(false);
-  const [style, setStyle] = useState({ width: 170, height: 120 });
-
+  const [style, setStyle] = useState({ width: 200, height: 130 });
+  const { setIsLogin,updateUserData} = useContext(Context);
   useEffect(() => {
     GoogleSignin.configure({
       webClientId: '443425767025-dfcjm96gmgk71lj6je4edpo0qo3ao59h.apps.googleusercontent.com',
     });
   },[])
+
+  // const removeValue = async () => {
+  //   console.log("we will try to move userInfo");
+  //   try {
+  //     await AsyncStorage.removeItem('userInfo');
+  //   } catch (e) {}
+  // };
 
   async function onGoogleButtonPress() {
     try {
@@ -92,37 +98,37 @@ const SignIp = ({navigation}) => {
   const signIn = async val => {
     try {
       const response = await axios.post(API_URL, val);
-      if (response.data.id) {
+      console.log(response.data); 
+      if (response.data.iduser) {
         const store = storeData(response.data);
         if (store) {
+          updateUserData(response.data)
           setAlertText('please wait...');
           setshowCancelButton(false);
           setShowAlert(false);
           setShowProgress(false);
-          navigation.navigate('Home');
+          setIsLogin(true);
         }
       } else {
         setErr(true);
         setShowProgress(false);
         setAlertText('something wrong please try again');
         setshowCancelButton(true);
-        setStyle({ width: 200, height: 120 })
+        setStyle({ width: 220, height: 140 })
       }
     } catch (error) {
       setShowProgress(false);
       setAlertText('something wrong please try again');
-      setStyle({ width: 200, height: 120 })
+      setStyle({ width: 220, height: 140 })
       setshowCancelButton(true);
     }
   };
-
   const storeData = async values => {
     try {
       const jsonValue = JSON.stringify(values);
       await AsyncStorage.setItem('userInfo', jsonValue);
       return true;
     } catch (e) {
-      // console.log(e);
       return false;
     }
   };
@@ -196,22 +202,19 @@ const SignIp = ({navigation}) => {
                   showProgress={showProgress}
                   useNativeDriver={true}
                   title=""
+                  messageStyle={{ width: "100%", textAlign: "center" }}
+                  cancelButtonStyle={{width:60,height:30,textAlign:"center"}}
                   message={textAlert}
                   closeOnTouchOutside={true}
                   closeOnHardwareBackPress={false}
                   showCancelButton={showCancelButton}
-                  // showConfirmButton={true}
                   cancelText="ok"
-                  // confirmText="Yes, delete it"
-                  // confirmButtonColor="#DD6B55"
+                  cancelButtonTextStyle={{textAlign:"center"}}
                   cancelButtonColor="#198E52"
                   onCancelPressed={() => {
                     setShowAlert(false);
                     setShowProgress(false);
                   }}
-                  // onConfirmPressed={() => {
-                  //   this.hideAlert();
-                  // }}
                   progressColor="#198E52"
                   progresSize="30"
                   animatedValue={3}

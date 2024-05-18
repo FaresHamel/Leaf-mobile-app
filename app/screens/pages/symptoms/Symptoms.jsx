@@ -13,26 +13,24 @@ import {Separator} from 'react-native-btr';
 import { Context } from '../../../hooks/Context';
 import styless from './symptoms.style';
 const Symptoms = ({navigation}) => {
+  
   const [disabledButton, setDisabledButton] = useState(false);
   const {dataSamptoms} = useContext(Context)  
   const [ListUserSamptoms, setListUserSymptoms] = useState([]); 
   
   const toggle = (iTem) => {
-    
-    const itemIndex = dataSamptoms.findIndex((item) => item.id === iTem.id);
+    const itemIndex = dataSamptoms.findIndex((item) => item.refe === iTem.refe);
     const newItemState = !dataSamptoms[itemIndex].isChecked;
     if (newItemState) {
       dataSamptoms[itemIndex].isChecked = true;
       setListUserSymptoms([...ListUserSamptoms, iTem]);
     } else {
       dataSamptoms[itemIndex].isChecked = false;
-      setListUserSymptoms(ListUserSamptoms.filter( item => item.id !== iTem.id));
+      setListUserSymptoms(ListUserSamptoms.filter( item => item.refe !== iTem.refe));
     }
-   
   }
   const renderItem = ({item}) => (
     <View style={styles.row}>
-      
       <BouncyCheckbox
           size={25}
           fillColor="#008996"

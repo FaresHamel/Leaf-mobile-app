@@ -5,17 +5,74 @@ import MediemeBottle from "../../../assets/BottleMedieme.png";
 import BigBottleWater from "../../../assets/bigBottle.png";
 import timer from '../../../assets/clock.png';
 import { format } from 'date-fns'; 
-const Water = ({navigation}) => {
-  
+import { Context } from '../../../hooks/Context';
+
+const Water = ({ navigation }) => {  
+ 
   const ListWaterBottle = [{ image: Glass, name: "Glass", size: "8 oz" }, { image: MediemeBottle, name: "Bottle", size: "16 oz" }, { image: BigBottleWater, name: "Big Bottle", size: "24 oz" }]
+  const {dataDisplayMatrix,updateDataItem,userData} = useContext(Context);
   const [selectedItem, setSelectedItem] = useState("Glass");
   const [currentDate, setCurrentDate] = useState(new Date());
   const formattedDate = format(currentDate, 'EEEE,dd MMM');  
   const timee = format(currentDate, 'pppp')
 
+  // function of fetch last item added by the user
+  const fetchWater = async () => {
+     fetch(`http://192.168.43.54:5000/getWater?userId=${userData.iduser}`)
+      .then(response => response.json())
+      .then(responseJson => {
+        if (responseJson) {
+         // console.log(responseJson);
+          changeVlueWater(responseJson);
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      });
+    };
+   // Function of sending data
+    const sendData = async (newWaterItem) => {
+      try {
+        const response = await fetch(`http://192.168.43.54:5000/addWater?userId=${userData.iduser}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',  // Specify JSON data format
+          },
+          body: JSON.stringify(newWaterItem),  // Convert data to JSON string
+        });
+        const data = await response.json();  // Parse server response if needed
+       // console.log('Data sent successfully:', data); // Handle successful response
+        fetchWater();
+      } catch (error) {
+        console.error('Error sending data:', error);  // Handle errors gracefully
+      }
+    };  
+  //change the value of water in Display List in Home page
+  const changeVlueWater = (responseJson) => {
+    const itemIndex = dataDisplayMatrix.find((childItem) => childItem.title === "Water");
+    if (itemIndex) {
+     // Modification logic
+    itemIndex.value = responseJson.title;
+    itemIndex.isChecked = true;
+    // setDataDisplayMatrix(itemIndex, dataDisplayMatrix[itemIndex].isChecked=true);
+     itemIndex.date = responseJson.date;
+     itemIndex.time = responseJson.time;
+     // Update the context
+    updateDataItem(itemIndex, itemIndex.index); // Pass the modified object and its index
+  }
+    navigation.navigate("Home")
+  }
+
+  //function to add the item
   const handleSubmitt = () => {
-    const it = ListWaterBottle.filter((item) => item.name === selectedItem);
-    console.log(it);
+    const itemData = ListWaterBottle.filter((item) => item.name === selectedItem);
+    const newWaterItem = {
+      title: itemData[0].name,
+      size: itemData[0].size,
+      date: formattedDate,
+      time : timee,
+    }
+     sendData(newWaterItem); 
   }
 
   return (
