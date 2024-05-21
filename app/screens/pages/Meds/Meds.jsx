@@ -11,7 +11,7 @@ import {
   TextInput
 } from 'react-native';
 import addImage from '../../../assets/add02.png';
-import back from '../../../assets//back.png';
+import back from '../../../assets/back.png';
 import { Context } from '../../../hooks/Context';
 import calender from "../../../assets/calender.png";
 import { format } from 'date-fns'; 

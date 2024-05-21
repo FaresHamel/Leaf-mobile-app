@@ -109,7 +109,7 @@ const Tabnavigator = () => {
                   style={{tintColor: color, width: size, height: size}}
                 />
               );
-            case 'Records':
+            case 'Ressource':
               iconName = recodImage;
               color = focused ? '#198E52' : '#83829A';
               size = focused ? 30 : 20;
@@ -134,7 +134,7 @@ const Tabnavigator = () => {
       <Tab.Screen name="Home" component={Home} />
 
       <Tab.Screen name="Profile" component={Profile} />
-      <Tab.Screen name="Records" component={Records} />
+      <Tab.Screen name="Ressource" component={Records} options={{headerShadowVisible:false}}/>
       <Tab.Screen name="Source" component={Source} />
     </Tab.Navigator>
   );

@@ -93,7 +93,7 @@ const Food = ({ navigation }) => {
       date: formattedDate,
       time: timee,
     }
-    console.log(newFood);
+    // console.log(newFood);
     sendData(newFood);
     }
   }
