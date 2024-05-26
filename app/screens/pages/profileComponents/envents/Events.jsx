@@ -7,36 +7,31 @@ import {
   ScrollView,
   Image,
   Pressable,
-  Alert,
+  Modal,
+  TextInput,
   KeyboardAvoidingView,
-  TouchableOpacity,
-  Linking,
+  TouchableOpacity,Linking
 } from 'react-native';
 import addImage from '../../../../assets/add02.png';
 // import { Context } from '../../../../hooks/Context';
 import {Context} from '../../../../hooks/Context';
 import calender from '../../../../assets/calender.png';
 
-const CareProvider = ({navigation}) => {
+const Events = ({navigation}) => {
   const [careProviderList, setCareProviderList] = useState([]);
   const {userData} = useContext(Context);
-  // const handleCallPress = () => {
-  //   const phoneNumber = '1234567890'; // Replace with the actual phone number
-  //   Linking.openURL(`tel:${phoneNumber}`);
-  // };
+  const handleCallPress = () => {
+    const phoneNumber = '1234567890'; // Replace with the actual phone number
+    Linking.openURL(`tel:${phoneNumber}`);
+  };
   const fetchCareProvider = async () => {
     fetch(`http://192.168.43.54:5000/getCareProvider?userId=${userData.iduser}`)
       .then(response => response.json())
       .then(responseJson => {
         if (responseJson.length > 0) {
           let arr = responseJson;
-          //  console.log(arr);
-          if (arr.length > 0) {
-             setCareProviderList(arr);
-          } else {
-             setCareProviderList([]);
-          }
-         
+          // console.log(arr);
+          setCareProviderList(arr);
         } else {
           // setClickStart(false);
         }
@@ -45,73 +40,6 @@ const CareProvider = ({navigation}) => {
         console.log(error);
       });
   };
-
-   const deleteCareProvider = async (id) => {
-    try {
-      const response = await fetch(`http://192.168.43.54:5000/addNewConsultation?userId=${userData.iduser}&providerId${id}`, {
-        method: 'POST',
-      });
-      console.log(response);
-      if (response.ok) {
-        Alert.alert('Success', 'Item deleted successfully');
-      } else {
-        Alert.alert('Error', 'Failed to delete the item');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      Alert.alert('Error', 'An error occurred');
-    }
-   };
-  
-   const shareProfileWithProvider = async (id) => {
-    try {
-      const response = await fetch(`http://192.168.43.54:5000/deleteCareProvider/${id}`, {
-        method: 'DELETE',
-      });
-      console.log(response);
-      if (response.ok) {
-        Alert.alert('Success', 'Item deleted successfully');
-      } else {
-        Alert.alert('Error', 'Failed to delete the item');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      Alert.alert('Error', 'An error occurred');
-    }
-  };
-  
-  const showAlertBeforeShareProfile = (id) => {
-    Alert.alert(
-    "Share Profile",
-    "Are you sure that you want to share your Profile with this Provider ?",
-    [
-      {
-        text: "Cancel",
-        onPress: () => console.log('cancel share'),
-        style: "cancel"
-      },
-      { text: "OK", onPress: () => shareProfileWithProvider(id) }
-    ],
-    { cancelable: false }
-  );
-  }
-  const showAllerBeforeDelteProvider = (id) => {
-    console.log(id);
-    Alert.alert(
-    "Delete Provider",
-    "Are you sure that you want to delete this Provider ?",
-    [
-      {
-        text: "Cancel",
-        onPress: () => console.log("cancel"),
-        style: "cancel"
-      },
-      { text: "OK", onPress: () => deleteCareProvider(id)}
-    ],
-    { cancelable: false }
-  );
-  }
-
   useEffect(() => {
     fetchCareProvider();
   });
@@ -126,7 +54,8 @@ const CareProvider = ({navigation}) => {
         <ScrollView
           style={{flex: 1, backgroundColor: 'white'}}
           showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+        >
           <View
             style={{
               backgroundColor: 'white',
@@ -142,11 +71,11 @@ const CareProvider = ({navigation}) => {
                     width: '100%',
                     height: 230,
                     padding: 10,
-                    justifyContent: 'space-around',
+                    justifyContent:"space-around",
                     borderWidth: 1,
                     borderColor: '#d9dad7',
                     shadowColor: '#000',
-                    marginBottom: 10,
+                    marginBottom:10,
                     shadowOffset: {
                       width: 0,
                       height: 2,
@@ -166,7 +95,7 @@ const CareProvider = ({navigation}) => {
                         color: '#000',
                         fontWeight: '700',
                         marginRight: 10,
-                        fontSize: 10,
+                        fontSize: 18,
                       }}>
                       Name :{' '}
                     </Text>
@@ -175,7 +104,7 @@ const CareProvider = ({navigation}) => {
                         color: '#000',
                         // marginBottom: 7,
                         fontWeight: '400',
-                        fontSize: 10,
+                        fontSize: 18,
                       }}>
                       {item.name}
                     </Text>
@@ -191,24 +120,21 @@ const CareProvider = ({navigation}) => {
                         color: '#000',
                         fontWeight: '700',
                         marginRight: 10,
-                        fontSize: 10,
+                        fontSize: 18,
                       }}>
                       Phone number :{' '}
                     </Text>
-                    <TouchableOpacity
-                      onPress={() =>
-                        Linking.openURL(`tel:${item.phoneNumber}`)
-                      }>
-                      <Text
-                        style={{
-                          color: '#000',
-                          // marginBottom: 7,
-                          fontWeight: '400',
-                          fontSize: 10,
-                        }}>
-                        {item.phoneNumber}
-                      </Text>
-                    </TouchableOpacity>
+                    <TouchableOpacity onPress={()=>Linking.openURL(`tel:${item.phoneNumber}`)}>
+                       <Text
+                      style={{
+                        color: '#000',
+                        // marginBottom: 7,
+                        fontWeight: '400',
+                        fontSize: 15,
+                      }}>
+                      {item.phoneNumber}
+                    </Text>
+                   </TouchableOpacity>
                   </View>
                   <View
                     style={{
@@ -221,7 +147,7 @@ const CareProvider = ({navigation}) => {
                         color: '#000',
                         fontWeight: '700',
                         marginRight: 10,
-                        fontSize: 10,
+                        fontSize: 18,
                       }}>
                       Email :{' '}
                     </Text>
@@ -230,7 +156,7 @@ const CareProvider = ({navigation}) => {
                         color: '#000',
                         // marginBottom: 7,
                         fontWeight: '400',
-                        fontSize: 10,
+                        fontSize: 15,
                       }}>
                       {item.email}
                     </Text>
@@ -246,7 +172,7 @@ const CareProvider = ({navigation}) => {
                         color: '#000',
                         fontWeight: '700',
                         marginRight: 10,
-                        fontSize: 10,
+                        fontSize: 18,
                       }}>
                       Location:{' '}
                     </Text>
@@ -255,7 +181,7 @@ const CareProvider = ({navigation}) => {
                         color: '#000',
                         // marginBottom: 7,
                         fontWeight: '400',
-                        fontSize: 10,
+                        fontSize: 15,
                       }}>
                       {item.location}
                     </Text>
@@ -271,7 +197,7 @@ const CareProvider = ({navigation}) => {
                         color: '#000',
                         fontWeight: '700',
                         marginRight: 10,
-                        fontSize: 10,
+                        fontSize: 18,
                       }}>
                       Specialty:{' '}
                     </Text>
@@ -280,7 +206,7 @@ const CareProvider = ({navigation}) => {
                         color: '#000',
                         // marginBottom: 7,
                         fontWeight: '400',
-                        fontSize: 10,
+                        fontSize: 15,
                       }}>
                       {item.specialty}
                     </Text>
@@ -290,7 +216,7 @@ const CareProvider = ({navigation}) => {
                       style={{
                         color: '#000',
                         fontWeight: '700',
-                        fontSize: 10,
+                        fontSize: 18,
                         marginRight: 10,
                       }}>
                       Date :
@@ -312,55 +238,11 @@ const CareProvider = ({navigation}) => {
                           color: '#000',
                           // marginBottom: 7,
                           fontWeight: '400',
-                          fontSize: 10,
+                          fontSize: 15,
                         }}>
                         {item.date}
                       </Text>
                     </View>
-                  </View>
-                  <View style={{backgroundColor:"white",flexDirection:"row",justifyContent:"space-between",width:"100%",alignItems:"center"}} >
-                    <TouchableOpacity
-                     onPress={() => showAlertBeforeShareProfile(item.idcareProvider)}
-                      style={{
-                        paddingBottom:5,
-                        borderBottomColor: "#007F73",
-                        borderBottomWidth:1,
-                        justifyContent: "flex-start",
-                        alignItems:"flex-start",
-                      }}>
-                      <Text
-                        style={{
-                         color: '#007F73',
-                          fontWeight: '700',
-                          fontSize: 10,
-                          textDecoration:true
-                        }}>
-                        Share Profile
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                       onPress={() => showAllerBeforeDelteProvider(item.idcareProvider)}
-                      style={{
-                        // backgroundColor: '#198E52',
-                        // width: 100,
-                        // paddingHorizontal: 10,
-                        // paddingVertical: 5,
-                        paddingBottom:5,
-                        borderBottomColor: "red",
-                        borderBottomWidth:1,
-                        justifyContent: "flex-start",
-                        alignItems:"flex-start",
-                      }}>
-                      <Text
-                        style={{
-                          color: 'red',
-                          fontWeight: '700',
-                          fontSize: 10,
-                          textDecoration:true
-                        }}>
-                       delete
-                      </Text>
-                    </TouchableOpacity>
                   </View>
                 </TouchableOpacity>
               ))
@@ -399,9 +281,10 @@ const CareProvider = ({navigation}) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-      <StatusBar backgroundColor="#007F73" barStyle="light-content" />
+      <StatusBar backgroundColor="#CC5DE8" barStyle="light-content" />
     </SafeAreaView>
   );
 };
 
-export default CareProvider;
+export default Events;
+

@@ -6,6 +6,7 @@ import genitic from "../../assets/prifile/genitic.png";
 import syringe from "../../assets/prifile/syringe.png";
 import virus from "../../assets/prifile/virus.png";
 import add from "../../assets/add.png";
+import events from "../../assets/events.png"
 const Profile = ({ navigation }) => {
   const data = [
    {
@@ -42,7 +43,15 @@ const Profile = ({ navigation }) => {
       title:"Care Provider",
       link: "CareProvider",
       color:"#007F73"
+    },
+    {
+      id:6,
+      image:events,
+      title:"Events",
+      link: "Events",
+      color:"#CC5DE8"
     }
+    
   ]
 const renderItem = ({ item }) => (
   <TouchableOpacity

@@ -55,7 +55,7 @@ const Vaccination = () => {
     }
   };
   const changeTextInputVaccination = text => {
-    setCondition(text);
+    setVaccination(text);
   };
   const handleAddNewCondition = () => {
     if (vaccination) {

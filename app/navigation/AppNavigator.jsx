@@ -19,6 +19,8 @@ import Allergies from '../screens/pages/profileComponents/allergies/Allergies';
 import CareProvider from '../screens/pages/profileComponents/careProvider/CareProvider';
 import Condition from '../screens/pages/profileComponents/ConditionInjuction/Condition';
 import Genetics from '../screens/pages/profileComponents/genetics/Genetics';
+import AddCareProvider from '../screens/pages/profileComponents/careProvider/AddCareProvider';
+import Events from '../screens/pages/profileComponents/envents/Events';
 import { Context } from "../hooks/Context";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import body from '../assets/body.png';
@@ -132,10 +134,15 @@ const AppNavigator = () => {
       const userInfo = await JSON.parse(dannn);
       // condition to see if the user login or not if login we go to 
       // the home screen if not we will go to the welcome screen
-      if (userInfo.iduser) {
+      if (userInfo != null) {
+         if (userInfo.iduser) {
         updateUserData(userInfo);
         setCheckStatus(false);
         setIsLogin(true);
+      } else {
+        setCheckStatus(false);
+        setIsLogin(false)
+      }
       } else {
         setCheckStatus(false);
         setIsLogin(false)
@@ -216,6 +223,15 @@ const AppNavigator = () => {
               headerTitleStyle:{color: "white",fontWeight:"400",fontSize:18},
               headerStyle: { backgroundColor: "#be6a15" } 
 
+              }} />
+            <Stack.Screen component={AddCareProvider} name="AddCareProvider"
+             options={{
+              title: "Log Care Provider",
+              headerBackTitleStyle: { color: "#000" },
+              headerTintColor:"#fff",
+              headerTitleStyle:{color: "#fff",fontWeight:"400",fontSize:18},
+              headerStyle: { backgroundColor: "#007F73" }
+
              }}/>
            <Stack.Screen component={Symptoms} name="Symptoms"
             options={{
@@ -276,6 +292,16 @@ const AppNavigator = () => {
               headerStyle: { backgroundColor: "#5FCDA4" }
             }}
             />
+
+           <Stack.Screen component={Events} name="Events"
+             options={{
+              title: "Genetics",
+              headerBackTitleStyle: { color: "#000" },
+              headerTintColor:"#fff",
+              headerTitleStyle:{color: "#fff",fontWeight:"400",fontSize:18},
+              headerStyle: { backgroundColor: "#CC5DE8" }
+            }}
+            />
             
          </>) : (<>
           <Stack.Screen
@@ -312,4 +338,4 @@ const AppNavigator = () => {
   </Context.Provider>
   );
 }
-export default AppNavigator
+export default AppNavigator;

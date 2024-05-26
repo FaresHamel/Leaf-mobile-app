@@ -10,7 +10,7 @@ import { Context } from '../../../hooks/Context';
 import styles from './uniration.style';
 import { format } from 'date-fns'; 
 
-const Uniration = () => {
+const Uniration = ({navigation}) => {
   
     const {dataDisplayMatrix,updateDataItem,userData} = useContext(Context);
     const ListWaterBottle = [
@@ -52,7 +52,6 @@ const Uniration = () => {
           body: JSON.stringify(newMedicaments),  // Convert data to JSON string
         });
         const data = await response.json();  // Parse server response if needed
-       // console.log('Data sent successfully:', data); // Handle successful response
         fetchUniration();
       } catch (error) {
         console.error('Error sending data:', error);  // Handle errors gracefully
@@ -79,7 +78,8 @@ const Uniration = () => {
       itemIndex.time = responseJson.time;
       // Update the context
       updateDataItem(itemIndex, itemIndex.index); // Pass the modified object and its index
-    }
+  }
+    navigation.navigate("Home");
   }
 
 

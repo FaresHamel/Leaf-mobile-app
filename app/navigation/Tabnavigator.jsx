@@ -135,7 +135,7 @@ const Tabnavigator = () => {
 
       <Tab.Screen name="Profile" component={Profile} />
       <Tab.Screen name="Ressource" component={Records} options={{headerShadowVisible:false}}/>
-      <Tab.Screen name="Source" component={Source} />
+        <Tab.Screen name="Source" component={Source} options={{title:"Your Profile",headerTitleStyle:{fontSize:15}}} />
     </Tab.Navigator>
   );
 };

@@ -53,13 +53,6 @@ const SignIp = ({navigation}) => {
     });
   },[])
 
-  // const removeValue = async () => {
-  //   console.log("we will try to move userInfo");
-  //   try {
-  //     await AsyncStorage.removeItem('userInfo');
-  //   } catch (e) {}
-  // };
-
   async function onGoogleButtonPress() {
     try {
       // Check if your device supports Google Play

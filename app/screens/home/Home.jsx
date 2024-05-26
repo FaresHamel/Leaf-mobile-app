@@ -10,6 +10,7 @@ import {
   ScrollView,
   Pressable,
   LogBox,
+  Dimensions
 } from 'react-native';
 import styles from './home.style';
 import startImage from '../../assets/goStart.png';
@@ -74,7 +75,6 @@ const dataDisplay = [
     link: 'Water',
   },
 ];
-
 const Home = ({navigation}) => {
   
   const {userData,cklickStart,setClickStart,dataSamptoms,setMedsList,medsList,dataDisplayMatrix,updateDataItem,setDataSamptoms} = useContext(Context);
