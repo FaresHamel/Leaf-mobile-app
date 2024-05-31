@@ -28,7 +28,7 @@ const Uniration = ({navigation}) => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const formattedDate = format(currentDate, 'EEEE,dd MMM');  
     const timee = format(currentDate, 'p')
-
+  const [unirationList, setUnirationList] = useState([]);
     const fetchUniration = async () => {
      fetch(`http://192.168.43.54:5000/getUniration?userId=${userData.iduser}`)
       .then(response => response.json())
@@ -82,11 +82,29 @@ const Uniration = ({navigation}) => {
     navigation.navigate("Home");
   }
 
+  useEffect(() => {
+      // function of fetch last item added by the user
+  const fetchWaterList = async () => {
+     fetch(`http://192.168.43.54:5000/getUnirationList?userId=${userData.iduser}`)
+      .then(response => response.json())
+      .then(responseJson => {
+        if (responseJson) {
+         console.log(responseJson);
+          setUnirationList(responseJson);
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      });
+    }; 
+    fetchWaterList();
+  });
 
 
   return (
      <SafeAreaView style={{flex:1,padding:10,backgroundColor:"white"}} >
-      <View style={{width:"100%",flexDirection:"row",justifyContent:"space-around",backgroundColor:"transparent",padding:10,flexWrap:"wrap"}} >
+      <ScrollView>
+         <View style={{width:"100%",flexDirection:"row",justifyContent:"space-around",backgroundColor:"transparent",padding:10,flexWrap:"wrap"}} >
         {ListWaterBottle.map((item, index) => (
         <View key={index}  style={{backgroundColor:"white",width:80,alignItems:"center",marginTop:10}} >
         <Pressable key={index} style={styles.tab(selectedItem,item.name)} onPress={()=>setSelectedItem(item.name)} >
@@ -148,6 +166,26 @@ const Uniration = ({navigation}) => {
           <Text style={{color: '#000',fontSize:14,fontWeight:"600"}}>ADD</Text>
         </TouchableOpacity>
       </View>
+       {unirationList.length>0 ?(
+          unirationList.map((item, index) => (
+            <View style={{backgroundColor:"#FAFAFA",width:"100%",padding:20,marginTop:10,shadowColor: '#000',
+                    marginBottom: 10,
+                    shadowOffset: {
+                      width: 0,
+                      height: 2,
+                    },
+                    shadowOpacity: 0.25,
+                    shadowRadius: 4,
+                    elevation: 2}}>
+              <Text style={{marginTop:10}}><Text style={{fontWeight:"600",color:"#2D2D2D"}} >Color : </Text>{item.title}</Text>
+              <Text style={{marginTop:10}} ><Text style={{fontWeight:"600",color:"#2D2D2D"}} >Day : </Text>{item.date}</Text>
+              <Text style={{marginTop:10}} ><Text style={{fontWeight:"600",color:"#2D2D2D"}} >At time : </Text>{item.time}</Text>
+             </View>
+              ))
+        ) : (
+              <></>
+            )}
+     </ScrollView>
       <StatusBar backgroundColor="#FBCD59" barStyle="dark-content" />
     </SafeAreaView>
   )

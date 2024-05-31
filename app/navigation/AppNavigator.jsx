@@ -28,6 +28,8 @@ import bool from '../assets/bool.png';
 import mood from '../assets/mood.png';
 import food from '../assets/food.png';
 import water from '../assets/water.png';
+import SymptomsList from '../screens/pages/symptomsList/SymptomsLis';
+import MedsList from '../screens/pages/medsList/MedsList';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -105,7 +107,7 @@ const AppNavigator = () => {
     source: food,
     backgroundColor: '#a75377',
     tintcolor: 'white',
-    link: 'Mood',
+    link: 'Food',
     date: "",
     time: "",
     isChecked:false
@@ -172,6 +174,15 @@ const AppNavigator = () => {
             <Stack.Screen component={Meds} name="Medicaments"
               options={{
               title: "Select Meds",
+              headerBackTitleStyle: { color: "white" },
+              headerTintColor:"white",
+              headerTitleStyle:{color: "white",fontWeight:"400",fontSize:18},
+              headerStyle: { backgroundColor: "#18A6C5" } 
+             }}
+            />
+             <Stack.Screen component={MedsList} name="MedsList"
+              options={{
+              title: "List Of Meds",
               headerBackTitleStyle: { color: "white" },
               headerTintColor:"white",
               headerTitleStyle:{color: "white",fontWeight:"400",fontSize:18},
@@ -292,14 +303,22 @@ const AppNavigator = () => {
               headerStyle: { backgroundColor: "#5FCDA4" }
             }}
             />
-
            <Stack.Screen component={Events} name="Events"
              options={{
-              title: "Genetics",
+              title: "Events",
               headerBackTitleStyle: { color: "#000" },
               headerTintColor:"#fff",
               headerTitleStyle:{color: "#fff",fontWeight:"400",fontSize:18},
               headerStyle: { backgroundColor: "#CC5DE8" }
+            }}
+            />
+            <Stack.Screen component={SymptomsList} name="SymptomsList"
+             options={{
+               title: "List of Somptoms",
+              headerBackTitleStyle: { color: "white" },
+              headerTintColor:"white",
+              headerTitleStyle:{color: "white",fontWeight:"400",fontSize:18},
+              headerStyle: { backgroundColor: "#198E52" }
             }}
             />
             

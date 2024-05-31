@@ -15,30 +15,19 @@ import {
 import addImage from '../../../../assets/add02.png';
 // import { Context } from '../../../../hooks/Context';
 import {Context} from '../../../../hooks/Context';
-import calender from '../../../../assets/calender.png';
-
+import axios from 'axios';
 const CareProvider = ({navigation}) => {
   const [careProviderList, setCareProviderList] = useState([]);
   const {userData} = useContext(Context);
-  // const handleCallPress = () => {
-  //   const phoneNumber = '1234567890'; // Replace with the actual phone number
-  //   Linking.openURL(`tel:${phoneNumber}`);
-  // };
   const fetchCareProvider = async () => {
     fetch(`http://192.168.43.54:5000/getCareProvider?userId=${userData.iduser}`)
       .then(response => response.json())
       .then(responseJson => {
-        if (responseJson.length > 0) {
-          let arr = responseJson;
-          //  console.log(arr);
-          if (arr.length > 0) {
-             setCareProviderList(arr);
-          } else {
-             setCareProviderList([]);
-          }
-         
+        // console.log(responseJson)
+        if (responseJson.result === 0) {
+          setCareProviderList([]);
         } else {
-          // setClickStart(false);
+          setCareProviderList(responseJson);
         }
       })
       .catch(error => {
@@ -46,71 +35,79 @@ const CareProvider = ({navigation}) => {
       });
   };
 
-   const deleteCareProvider = async (id) => {
+  const deleteCareProvider = async id => {
     try {
-      const response = await fetch(`http://192.168.43.54:5000/addNewConsultation?userId=${userData.iduser}&providerId${id}`, {
-        method: 'POST',
-      });
-      console.log(response);
-      if (response.ok) {
-        Alert.alert('Success', 'Item deleted successfully');
+      const response = await fetch(
+        `http://192.168.43.54:5000/deleteCareProvider?userId=${userData.iduser}&providerId=${id}`,
+        {
+          method: 'DELETE',
+        },
+      );
+      // console.log(response);
+      if (response) {
+        Alert.alert('Success', 'Care Provider deleted successfully');
+        // fetchCareProvider();
       } else {
-        Alert.alert('Error', 'Failed to delete the item');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      Alert.alert('Error', 'An error occurred');
-    }
-   };
-  
-   const shareProfileWithProvider = async (id) => {
-    try {
-      const response = await fetch(`http://192.168.43.54:5000/deleteCareProvider/${id}`, {
-        method: 'DELETE',
-      });
-      console.log(response);
-      if (response.ok) {
-        Alert.alert('Success', 'Item deleted successfully');
-      } else {
-        Alert.alert('Error', 'Failed to delete the item');
+        Alert.alert('Error', 'Failed to delete the Care Provider');
       }
     } catch (error) {
       console.error('Error:', error);
       Alert.alert('Error', 'An error occurred');
     }
   };
-  
-  const showAlertBeforeShareProfile = (id) => {
+
+  const shareProfileWithProvider = async id => {
+    try {
+      const response = await axios.post(
+        `http://192.168.43.54:5000/shareProfile?userId=${userData.iduser}&idMedecin=${id}`,
+      );
+      if (response.data.result == 1) {
+        Alert.alert('Success', 'Profile Shared');
+        // navigation.navigate("CareProvider");
+        // navigation.popToTop('CareProvider');
+      } else {
+        Alert.alert(
+          'Error',
+          'Failed to Share Profile',
+        );
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An error occurred');
+    }
+  };
+
+  const showAlertBeforeShareProfile = id => {
     Alert.alert(
-    "Share Profile",
-    "Are you sure that you want to share your Profile with this Provider ?",
-    [
-      {
-        text: "Cancel",
-        onPress: () => console.log('cancel share'),
-        style: "cancel"
-      },
-      { text: "OK", onPress: () => shareProfileWithProvider(id) }
-    ],
-    { cancelable: false }
-  );
-  }
-  const showAllerBeforeDelteProvider = (id) => {
+      'Share Profile',
+      'Are you sure that you want to share your Profile with this Provider ?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('cancel share'),
+          style: 'cancel',
+        },
+        {text: 'OK', onPress: () => shareProfileWithProvider(id)},
+      ],
+      {cancelable: false},
+    );
+  };
+  const showAllerBeforeDelteProvider = id => {
     console.log(id);
     Alert.alert(
-    "Delete Provider",
-    "Are you sure that you want to delete this Provider ?",
-    [
-      {
-        text: "Cancel",
-        onPress: () => console.log("cancel"),
-        style: "cancel"
-      },
-      { text: "OK", onPress: () => deleteCareProvider(id)}
-    ],
-    { cancelable: false }
-  );
-  }
+      'Delete Provider',
+      'Are you sure that you want to delete this Provider ?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('cancel'),
+          style: 'cancel',
+        },
+        {text: 'OK', onPress: () => deleteCareProvider(id)},
+      ],
+      {cancelable: false},
+    );
+  };
 
   useEffect(() => {
     fetchCareProvider();
@@ -282,83 +279,59 @@ const CareProvider = ({navigation}) => {
                         fontWeight: '400',
                         fontSize: 10,
                       }}>
-                      {item.specialty}
+                      {item.speciality}
                     </Text>
                   </View>
-                  <View style={{flexDirection: 'row', alignItems: 'baseline'}}>
-                    <Text
-                      style={{
-                        color: '#000',
-                        fontWeight: '700',
-                        fontSize: 10,
-                        marginRight: 10,
-                      }}>
-                      Date :
-                    </Text>
-                    <View
-                      style={{flexDirection: 'row', alignItems: 'baseline'}}>
-                      <Image
-                        source={calender}
-                        style={{
-                          width: 15,
-                          height: 15,
-                          marginRight: 10,
-                          tintColor: '#000',
-                        }}
-                      />
-                      <Text
-                        style={{
-                          color: '#000',
-                          color: '#000',
-                          // marginBottom: 7,
-                          fontWeight: '400',
-                          fontSize: 10,
-                        }}>
-                        {item.date}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={{backgroundColor:"white",flexDirection:"row",justifyContent:"space-between",width:"100%",alignItems:"center"}} >
+                  <View
+                    style={{
+                      backgroundColor: 'white',
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      width: '100%',
+                      alignItems: 'center',
+                    }}>
                     <TouchableOpacity
-                     onPress={() => showAlertBeforeShareProfile(item.idcareProvider)}
+                      onPress={() => showAlertBeforeShareProfile(item.idprov)}
                       style={{
-                        paddingBottom:5,
-                        borderBottomColor: "#007F73",
-                        borderBottomWidth:1,
-                        justifyContent: "flex-start",
-                        alignItems:"flex-start",
+                        paddingBottom: 5,
+                        borderBottomColor: '#007F73',
+                        borderBottomWidth: 1,
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
                       }}>
                       <Text
                         style={{
-                         color: '#007F73',
+                          color: '#007F73',
                           fontWeight: '700',
                           fontSize: 10,
-                          textDecoration:true
+                          textDecoration: true,
                         }}>
                         Share Profile
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                       onPress={() => showAllerBeforeDelteProvider(item.idcareProvider)}
+                      onPress={() =>
+                        showAllerBeforeDelteProvider(item.idcareProvider)
+                      }
                       style={{
                         // backgroundColor: '#198E52',
                         // width: 100,
                         // paddingHorizontal: 10,
                         // paddingVertical: 5,
-                        paddingBottom:5,
-                        borderBottomColor: "red",
-                        borderBottomWidth:1,
-                        justifyContent: "flex-start",
-                        alignItems:"flex-start",
+                        paddingBottom: 5,
+                        borderBottomColor: 'red',
+                        borderBottomWidth: 1,
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
                       }}>
                       <Text
                         style={{
                           color: 'red',
                           fontWeight: '700',
                           fontSize: 10,
-                          textDecoration:true
+                          textDecoration: true,
                         }}>
-                       delete
+                        delete
                       </Text>
                     </TouchableOpacity>
                   </View>

@@ -145,6 +145,19 @@ const Home = ({navigation}) => {
     updateDataItem(itemIndex, itemIndex.index); // Pass the modified object and its index
    }
   }
+  const changeValueFood = (responseJson) => {
+       const itemIndex = dataDisplayMatrix.find((childItem) => childItem.title === "Food");
+    if (itemIndex) {
+     // Modification logic
+     itemIndex.value = responseJson.title;
+     itemIndex.isChecked = true;
+    // setDataDisplayMatrix(itemIndex, dataDisplayMatrix[itemIndex].isChecked=true);
+     itemIndex.date = responseJson.date;
+     itemIndex.time = responseJson.time;
+     // Update the context
+    updateDataItem(itemIndex, itemIndex.index); /// Pass the modified object and its index
+   } 
+  }
   // useEffect to get all data of user in data base
   useEffect(() => {
   
@@ -232,12 +245,26 @@ const Home = ({navigation}) => {
         // setNoData(false);
       });
     };
+      const fetchFood = async () => {
+     fetch(`http://192.168.43.54:5000/getFood?userId=${userData.iduser}`)
+      .then(response => response.json())
+      .then(responseJson => {
+        if (responseJson) {
+          // console.log(responseJson);
+          changeValueFood(responseJson);
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      });
+    };
     fetchSymptoms();
     fetchMedicaments();
     fetchUniration();
     fetchMood();
     fetchWater();
     fetchActivity();
+    fetchFood();
     LogBox.ignoreAllLogs()
   },[])
 
@@ -385,10 +412,10 @@ const Home = ({navigation}) => {
         {cklickStart ? (
           <>
             <View style={{flexDirection:"row",paddingHorizontal:10,justifyContent:"space-between"}}>
-              <Text>Metrics</Text>
-              <TouchableOpacity>
+              <Text style={{fontWeight:"500",fontSize:16}}>Metrics</Text>
+              {/* <TouchableOpacity>
                 <Text>See All</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           <View style={{width:"100%",marginTop:10,alignItems:"center",justifyContent:"space-between",flexDirection:"row",flexWrap:"wrap"}} >
                {dataDisplayMatrix.filter((item) => item.isChecked).map((item,inde) => (
@@ -475,7 +502,7 @@ const Home = ({navigation}) => {
           <View style={{ width: "100%",marginBottom:20}}>
             <View style={{width:"100%",flexDirection:"row",justifyContent:"space-between",padding:10}} >
               <Text style={{fontWeight:"500",fontSize:16}} >Symptoms</Text>
-              <Pressable>
+              <Pressable onPress={()=>navigation.navigate('SymptomsList')} >
                 <Text style={{color:"#198E52"}} >See All</Text>
               </Pressable>
             </View>
@@ -501,7 +528,7 @@ const Home = ({navigation}) => {
          <View style={{ width: "100%" }}>
             <View style={{width:"100%",flexDirection:"row",justifyContent:"space-between",padding:10}} >
               <Text style={{fontWeight:"500",fontSize:16}} >Meds Taken</Text>
-              <Pressable>
+              <Pressable onPress={()=>navigation.navigate('MedsList')} >
                 <Text style={{color:"#18A6C5"}} >See All</Text>
               </Pressable>
             </View>

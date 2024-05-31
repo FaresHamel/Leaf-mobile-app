@@ -34,7 +34,7 @@ const Food = ({ navigation }) => {
   const formattedDate = format(currentDate, 'EEEE,dd MMM'); // Format the date  
   const timee = format(currentDate, 'pp')
   const {dataDisplayMatrix,updateDataItem,userData} = useContext(Context);
-  
+  const [foodList, setFoodList] = useState([]);
   
   const changeVlueActivity = (responseJson) => {
     const itemIndex = dataDisplayMatrix.find((childItem) => childItem.title === "Food");
@@ -97,7 +97,23 @@ const Food = ({ navigation }) => {
     sendData(newFood);
     }
   }
-
+ useEffect(() => {
+      // function of fetch last item added by the user
+  const fetchFoodList = async () => {
+     fetch(`http://192.168.43.54:5000/getFoodList?userId=${userData.iduser}`)
+      .then(response => response.json())
+      .then(responseJson => {
+        if (responseJson) {
+         console.log(responseJson);
+          setFoodList(responseJson);
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      });
+    }; 
+    fetchFoodList();
+  });
   return (
     <SafeAreaView  style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView  style={{ flex: 1, backgroundColor: 'white',padding:20}} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
@@ -175,6 +191,26 @@ const Food = ({ navigation }) => {
           <Text style={{color: '#fff',fontSize:14,fontWeight:"600"}}>ADD</Text>
         </TouchableOpacity>
         </View>
+           {foodList.length>0 ?(
+          foodList.map((item, index) => (
+            <View style={{backgroundColor:"#FAFAFA",width:"100%",padding:20,marginTop:10,shadowColor: '#000',
+                    marginBottom: 10,
+                    shadowOffset: {
+                      width: 0,
+                      height: 2,
+                    },
+                    shadowOpacity: 0.25,
+                    shadowRadius: 4,
+                    elevation: 2}}>
+              <Text style={{marginTop:10}}><Text style={{fontWeight:"600",color:"#2D2D2D"}} >Name : </Text>{item.title}</Text>
+              <Text style={{marginTop:10}} ><Text style={{fontWeight:"600",color:"#2D2D2D"}} >Type : </Text>{item.type}</Text>
+              <Text style={{ marginTop: 10 }} ><Text style={{ fontWeight: "600", color: "#2D2D2D" }} >Day : </Text>{item.date}</Text>
+              <Text style={{marginTop:10}} ><Text style={{fontWeight:"600",color:"#2D2D2D"}} >At time : </Text>{item.time}</Text>
+             </View>
+              ))
+        ) : (
+              <></>
+            )}
       </ScrollView>
      <StatusBar backgroundColor="#f47721" barStyle="light-content"/>
      </SafeAreaView>

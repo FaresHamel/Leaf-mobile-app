@@ -13,6 +13,7 @@ const Water = ({ navigation }) => {
   const {dataDisplayMatrix,updateDataItem,userData} = useContext(Context);
   const [selectedItem, setSelectedItem] = useState("Glass");
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [waterList, setWaterList] = useState([]);
   const formattedDate = format(currentDate, 'EEEE,dd MMM');  
   const timee = format(currentDate, 'pppp')
 
@@ -75,9 +76,28 @@ const Water = ({ navigation }) => {
      sendData(newWaterItem); 
   }
 
+  useEffect(() => {
+   // function of fetch last item added by the user
+  const fetchWaterList = async () => {
+     fetch(`http://192.168.43.54:5000/getWaterList?userId=${userData.iduser}`)
+      .then(response => response.json())
+      .then(responseJson => {
+        if (responseJson) {
+         console.log(responseJson);
+          setWaterList(responseJson);
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      });
+    }; 
+    fetchWaterList();
+  })
+
   return (
     <SafeAreaView style={{flex:1,padding:10,backgroundColor:"white"}} >
-      <View style={{width:"100%",flexDirection:"row",justifyContent:"space-around",backgroundColor:"transparent",padding:10}} >
+      <ScrollView>
+          <View style={{width:"100%",flexDirection:"row",justifyContent:"space-around",backgroundColor:"transparent",padding:10}} >
         {ListWaterBottle.map((item, index) => (
         <Pressable key={index} style={styles.tab(selectedItem,item.name)} onPress={()=>setSelectedItem(item.name)} >
          <View style={{backgroundColor:"#e2f3f5",width:60,height:70,alignItems:"center",justifyContent:"center",borderRadius:7}} >
@@ -138,7 +158,28 @@ const Water = ({ navigation }) => {
         }}  style={{backgroundColor:"#3369e7" ,width:120,height:40,borderRadius:5,alignItems:"center",justifyContent:"center",alignSelf:"center",marginTop: 30}}>
           <Text style={{color: '#fff',fontSize:14,fontWeight:"600"}}>ADD</Text>
         </TouchableOpacity>
-      </View>
+        </View>
+        {waterList.length>0 ?(
+          waterList.map((item, index) => (
+            <View style={{backgroundColor:"#FAFAFA",width:"100%",padding:20,marginTop:10,shadowColor: '#000',
+                    marginBottom: 10,
+                    shadowOffset: {
+                      width: 0,
+                      height: 2,
+                    },
+                    shadowOpacity: 0.25,
+                    shadowRadius: 4,
+                    elevation: 2}}>
+              <Text style={{marginTop:10}}><Text style={{fontWeight:"600",color:"#2D2D2D"}} >Type : </Text>{item.title}</Text>
+              <Text style={{marginTop:10}} ><Text style={{fontWeight:"600",color:"#2D2D2D"}} >Size : </Text>{item.size}</Text>
+              <Text style={{marginTop:10}} ><Text style={{fontWeight:"600",color:"#2D2D2D"}} >Day : </Text>{item.date}</Text>
+              <Text style={{marginTop:10}} ><Text style={{fontWeight:"600",color:"#2D2D2D"}} >At time : </Text>{item.time}</Text>
+             </View>
+              ))
+        ) : (
+              <></>
+            )}
+    </ScrollView>
       <StatusBar backgroundColor="#3369e7" barStyle="light-content" />
     </SafeAreaView>
   )

@@ -22,7 +22,7 @@ const Mood = ({navigation}) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const formattedDate = format(currentDate, 'EEEE,dd MMM');  
   const timee = format(currentDate, 'p')
-
+  const [moodList, setMoodList] = useState([]);
   const changeVlueMood = (responseJson) => {
     const itemIndex = dataDisplayMatrix.find((childItem) => childItem.title === "Mood");
    
@@ -79,10 +79,27 @@ const Mood = ({navigation}) => {
     sendData(newMood); 
     }
   
-
+ useEffect(() => {
+      // function of fetch last item added by the user
+  const fetchMoodList = async () => {
+     fetch(`http://192.168.43.54:5000/getMoodList?userId=${userData.iduser}`)
+      .then(response => response.json())
+      .then(responseJson => {
+        if (responseJson) {
+         console.log(responseJson);
+          setMoodList(responseJson);
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      });
+    }; 
+    fetchMoodList();
+  });
   return (
      <SafeAreaView style={{flex:1,padding:10,backgroundColor:"white"}} >
-      <View style={{width:"100%",flexDirection:"row",justifyContent:"space-around",backgroundColor:"transparent",padding:10}} >
+      <ScrollView>
+          <View style={{width:"100%",flexDirection:"row",justifyContent:"space-around",backgroundColor:"transparent",padding:10}} >
         {ListWaterBottle.map((item, index) => (
         <Pressable key={index} style={styles.tab(selectedItem,item.name)} onPress={()=>setSelectedItem(item.name)} >
          <View style={{backgroundColor:"#e2f3f5",width:50,height:50,alignItems:"center",justifyContent:"center",borderRadius:7}} >
@@ -142,6 +159,26 @@ const Mood = ({navigation}) => {
           <Text style={{color: '#fff',fontSize:14,fontWeight:"600"}}>ADD</Text>
         </TouchableOpacity>
       </View>
+       {moodList.length>0 ?(
+          moodList.map((item, index) => (
+            <View style={{backgroundColor:"#FAFAFA",width:"100%",padding:20,marginTop:10,shadowColor: '#000',
+                    marginBottom: 10,
+                    shadowOffset: {
+                      width: 0,
+                      height: 2,
+                    },
+                    shadowOpacity: 0.25,
+                    shadowRadius: 4,
+                    elevation: 2}}>
+              <Text style={{marginTop:10}}><Text style={{fontWeight:"600",color:"#2D2D2D"}} >Procentage : </Text>{item.name}</Text>
+              <Text style={{marginTop:10}} ><Text style={{fontWeight:"600",color:"#2D2D2D"}} >Day : </Text>{item.date}</Text>
+              <Text style={{marginTop:10}} ><Text style={{fontWeight:"600",color:"#2D2D2D"}} >At time : </Text>{item.time}</Text>
+             </View>
+              ))
+        ) : (
+              <></>
+            )}
+    </ScrollView>
       <StatusBar backgroundColor="#a75377" barStyle="light-content" />
     </SafeAreaView>
   )

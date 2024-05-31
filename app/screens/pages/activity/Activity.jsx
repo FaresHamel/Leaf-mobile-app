@@ -32,7 +32,7 @@ const Activity = ({navigation}) => {
   const handleTextActivityDuration = (taxtDuration) => {setDuration(taxtDuration)}
   const handleButtonAddedNewActivity = () => {setModalActivityTypelVisible(false);}
   const handleButtonAddedNewDuration = () => {setModalDurationVisible(false);}
-
+  const [activityList, setActivityList] = useState([]);
   const fetchActivity = async () => {
      fetch(`http://192.168.43.54:5000/getActivity?userId=${userData.iduser}`)
       .then(response => response.json())
@@ -89,7 +89,23 @@ const Activity = ({navigation}) => {
    //console.log(newAct);
     sendData(newAct);
   }
-
+ useEffect(() => {
+      // function of fetch last item added by the user
+  const fetchActivityList = async () => {
+     fetch(`http://192.168.43.54:5000/getActivityList?userId=${userData.iduser}`)
+      .then(response => response.json())
+      .then(responseJson => {
+        if (responseJson) {
+         console.log(responseJson);
+          setActivityList(responseJson);
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      });
+    }; 
+    fetchActivityList();
+  });
   return (
     <SafeAreaView  style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView style={{ flex: 1, backgroundColor: 'white',padding:20}} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
@@ -348,7 +364,27 @@ const Activity = ({navigation}) => {
            </View>
           </View>
         </View>
-      </Modal>
+        </Modal>
+          {activityList.length>0 ?(
+          activityList.map((item, index) => (
+            <View style={{backgroundColor:"#FAFAFA",width:"100%",padding:20,marginTop:10,shadowColor: '#000',
+                    marginBottom: 10,
+                    shadowOffset: {
+                      width: 0,
+                      height: 2,
+                    },
+                    shadowOpacity: 0.25,
+                    shadowRadius: 4,
+                    elevation: 2}}>
+              <Text style={{marginTop:10}}><Text style={{fontWeight:"600",color:"#2D2D2D"}} >Title : </Text>{item.title}</Text>
+              <Text style={{marginTop:10}} ><Text style={{fontWeight:"600",color:"#2D2D2D"}} >Duration : </Text>{item.duration}</Text>
+              <Text style={{ marginTop: 10 }} ><Text style={{ fontWeight: "600", color: "#2D2D2D" }} >Day : </Text>{item.date}</Text>
+              <Text style={{marginTop:10}} ><Text style={{fontWeight:"600",color:"#2D2D2D"}} >At time : </Text>{item.time}</Text>
+             </View>
+              ))
+        ) : (
+              <></>
+            )}
       </ScrollView>
       <StatusBar backgroundColor="#be6a15" barStyle="light-content" />
    </SafeAreaView>
