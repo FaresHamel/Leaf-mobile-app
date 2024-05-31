@@ -12,12 +12,12 @@ import {
   StyleSheet
 } from 'react-native';
 import add from '../../../../assets/add.png';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import timer from '../../../../assets/clock.png';
 import calender from '../../../../assets/calender.png';
 import {format} from 'date-fns';
 import {Context} from '../../../../hooks/Context';
 const Allergies = () => {
-
   const estimated = [{id: 1,name: "Low"},{id: 2, name: "Moderate"},{id: 3,name: "High"},{id: 4,name: "Very High"}];
   const category = [{id:1,name:"Drug"},{id:2,name:"Food"},{id:3,name:"Envirement/Animals"},{id:4,name:"Other"}]
   const [allergy, setAllergy] = useState('');
